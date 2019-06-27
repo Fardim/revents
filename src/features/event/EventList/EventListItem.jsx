@@ -4,8 +4,11 @@ import EventListAttendee from './EventListAttendee';
 
 class EventListItem extends Component {
     state = {};
+    raiseEventSelected = event => {
+        this.props.onEventEdit(event);
+    };
     render() {
-        const { event } = this.props;
+        const { event, onEventEdit } = this.props;
         return (
             <Segment.Group>
                 <Segment>
@@ -49,6 +52,7 @@ class EventListItem extends Component {
                         color="teal"
                         floated="right"
                         content="View"
+                        onClick={() => this.raiseEventSelected(event)}
                     />
                 </Segment>
             </Segment.Group>

@@ -1,16 +1,33 @@
 import React, { Component } from 'react';
 import { Segment, Form, Button } from 'semantic-ui-react';
 
+const emptyEvent = {
+    title: '',
+    date: '',
+    city: '',
+    venue: '',
+    hostedBy: ''
+};
 class EventForm extends Component {
     state = {
-        event: {
-            title: '',
-            date: '',
-            city: '',
-            venue: '',
-            hostedBy: ''
-        }
+        event: emptyEvent
     };
+    componentDidMount() {
+        if (this.props.selectedEvent != null) {
+            this.setState({ event: this.props.selectedEvent });
+        }
+    }
+    //WARNING! To be deprecated in React v17. Use new lifecycle static getDerivedStateFromProps instead.
+    static getDerivedStateFromProps(nextProps, prevState) {
+        console.log('next', nextProps);
+        console.log('prev', prevState);
+        if (nextProps.selectedEvent !== prevState.selectedEvent) {
+            return {
+                event: nextProps.selectedEvent || emptyEvent
+            };
+        }
+    }
+    componentWillReceiveProps(nextProps) {}
     onFormSubmit = evt => {
         evt.preventDefault();
         this.props.createEvent(this.state.event);

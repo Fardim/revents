@@ -10,7 +10,7 @@ const emptyEvent = {
 };
 class EventForm extends Component {
     state = {
-        event: emptyEvent
+        event: { ...emptyEvent }
     };
     componentDidMount() {
         if (this.props.selectedEvent != null) {
@@ -22,13 +22,14 @@ class EventForm extends Component {
         console.log('next', nextProps);
         console.log('prev', prevState);
         if (nextProps.selectedEvent !== prevState.selectedEvent) {
+            console.log('in');
+            console.log('emptyEvent', emptyEvent);
             return {
-                event: nextProps.selectedEvent || emptyEvent
+                event: { ...nextProps.selectedEvent } || { ...emptyEvent }
             };
         }
     }
     onFormSubmit = evt => {
-        console.log(evt);
         evt.preventDefault();
         if (this.state.event.id) {
             this.props.updateEvent(this.state.event);

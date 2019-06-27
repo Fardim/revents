@@ -61,11 +61,12 @@ class EventDashboard extends Component {
         isOpen: false,
         selectedEvent: null
     };
+
     handleFormOpen = () => {
         this.setState({ isOpen: true, selectedEvent: null });
     };
-    handleEditEvent = eventToUpdate => {
-        this.setState({ selectedEvent: eventToUpdate, isOpen: true });
+    handleOpenEvent = eventToOpen => {
+        this.setState({ selectedEvent: eventToOpen, isOpen: true });
     };
     handleCancel = () => {
         this.setState({ isOpen: false });
@@ -74,8 +75,29 @@ class EventDashboard extends Component {
         newEvent.id = cuid();
         newEvent.hostPhotoURL = '/assets/user.png';
         const updatedEvents = [...this.state.events, newEvent];
-        this.setState({ events: updatedEvents });
+        this.setState({
+            events: updatedEvents,
+            isOpen: false,
+            selectedEvent: null
+        });
         console.log(updatedEvents);
+    };
+    handleUpdateEvent = eventToUpdate => {
+        this.setState({
+            events: this.state.events.map(event => {
+                if (event.id === eventToUpdate.id) {
+                    return Object.assign({}, eventToUpdate);
+                } else {
+                    return event;
+                }
+            }),
+            isOpen: false,
+            selectedEvent: null
+        });
+    };
+    handleDeleteEvent = eventId => {
+        const updatedEvents = this.state.events.filter(e => e.id !== eventId);
+        this.setState({ events: updatedEvents });
     };
     render() {
         const { events, selectedEvent } = this.state;
@@ -84,8 +106,9 @@ class EventDashboard extends Component {
                 <Grid>
                     <Grid.Column width={10}>
                         <EventList
+                            deleteEvent={this.handleDeleteEvent}
                             events={events}
-                            onEventEdit={this.handleEditEvent}
+                            onEventOpen={this.handleOpenEvent}
                         />
                     </Grid.Column>
                     <Grid.Column width={6}>
@@ -99,6 +122,7 @@ class EventDashboard extends Component {
                                 selectedEvent={selectedEvent}
                                 handleCancel={this.handleCancel}
                                 createEvent={this.handleCreateEvent}
+                                updateEvent={this.handleUpdateEvent}
                             />
                         )}
                     </Grid.Column>

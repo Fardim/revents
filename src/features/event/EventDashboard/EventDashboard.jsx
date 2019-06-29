@@ -87,6 +87,7 @@ class EventDashboard extends Component {
             events: this.state.events.map(event => {
                 if (event.id === eventToUpdate.id) {
                     return Object.assign({}, eventToUpdate);
+                    // return eventToUpdate; //It also works similarly
                 } else {
                     return event;
                 }

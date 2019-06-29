@@ -21,12 +21,18 @@ class EventForm extends Component {
     static getDerivedStateFromProps(nextProps, prevState) {
         console.log('next', nextProps);
         console.log('prev', prevState);
-        if (nextProps.selectedEvent !== prevState.selectedEvent) {
+        if (
+            nextProps.selectedEvent !== prevState.event &&
+            prevState.event.id &&
+            nextProps.selectedEvent.id !== prevState.event.id
+        ) {
             console.log('in');
             console.log('emptyEvent', emptyEvent);
             return {
                 event: { ...nextProps.selectedEvent } || { ...emptyEvent }
             };
+        } else {
+            return null;
         }
     }
     onFormSubmit = evt => {

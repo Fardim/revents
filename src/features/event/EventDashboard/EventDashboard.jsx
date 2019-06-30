@@ -4,10 +4,16 @@ import EventList from '../EventList/EventList';
 import EventForm from '../EventForm/EventForm';
 import cuid from 'cuid';
 import { connect } from 'react-redux';
+import { createEvent, deleteEvent, updateEvent } from '../eventActions';
 
 const mapStateToProps = state => ({
     events: state.events
 });
+const mapDispatchToActions = {
+    createEvent,
+    deleteEvent,
+    updateEvent
+};
 
 class EventDashboard extends Component {
     state = {
@@ -27,31 +33,42 @@ class EventDashboard extends Component {
     handleCreateEvent = newEvent => {
         newEvent.id = cuid();
         newEvent.hostPhotoURL = '/assets/user.png';
-        const updatedEvents = [...this.state.events, newEvent];
+        this.props.createEvent(newEvent);
         this.setState({
-            events: updatedEvents,
             isOpen: false,
             selectedEvent: null
         });
-        console.log(updatedEvents);
+        // const updatedEvents = [...this.state.events, newEvent];
+        // this.setState({
+        //     events: updatedEvents,
+        //     isOpen: false,
+        //     selectedEvent: null
+        // });
+        // console.log(updatedEvents);
     };
     handleUpdateEvent = eventToUpdate => {
+        this.props.updateEvent(eventToUpdate);
         this.setState({
-            events: this.state.events.map(event => {
-                if (event.id === eventToUpdate.id) {
-                    return Object.assign({}, eventToUpdate);
-                    // return eventToUpdate; //It also works similarly
-                } else {
-                    return event;
-                }
-            }),
             isOpen: false,
             selectedEvent: null
         });
+        // this.setState({
+        //     events: this.state.events.map(event => {
+        //         if (event.id === eventToUpdate.id) {
+        //             return Object.assign({}, eventToUpdate);
+        //             // return eventToUpdate; //It also works similarly
+        //         } else {
+        //             return event;
+        //         }
+        //     }),
+        //     isOpen: false,
+        //     selectedEvent: null
+        // });
     };
     handleDeleteEvent = eventId => {
-        const updatedEvents = this.state.events.filter(e => e.id !== eventId);
-        this.setState({ events: updatedEvents });
+        this.props.deleteEvent(eventId);
+        // const updatedEvents = this.state.events.filter(e => e.id !== eventId);
+        // this.setState({ events: updatedEvents });
     };
     render() {
         const { selectedEvent } = this.state;
@@ -87,4 +104,7 @@ class EventDashboard extends Component {
     }
 }
 
-export default connect(mapStateToProps)(EventDashboard);
+export default connect(
+    mapStateToProps,
+    mapDispatchToActions
+)(EventDashboard);

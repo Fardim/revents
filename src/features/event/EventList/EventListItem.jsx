@@ -5,9 +5,6 @@ import { Link } from 'react-router-dom';
 
 class EventListItem extends Component {
     state = {};
-    raiseEventSelected = event => {
-        this.props.onEventOpen(event);
-    };
     raiseEventDeleted = event => {
         this.props.deleteEvent(event.id);
     };

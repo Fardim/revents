@@ -35,6 +35,10 @@ function App() {
                                     component={EventDetailedPage}
                                 />
                                 <Route
+                                    path="/manage/:id"
+                                    component={EventForm}
+                                />
+                                <Route
                                     path="/people"
                                     component={PeopleDashboard}
                                 />

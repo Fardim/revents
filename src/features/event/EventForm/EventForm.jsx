@@ -1,46 +1,77 @@
 import React, { Component } from 'react';
 import { Segment, Form, Button } from 'semantic-ui-react';
+import { connect } from 'react-redux';
+import { createEvent, updateEvent } from '../eventActions';
+import cuid from 'cuid';
 
-const emptyEvent = {
-    title: '',
-    date: '',
-    city: '',
-    venue: '',
-    hostedBy: ''
+// const emptyEvent = {
+//     title: '',
+//     date: '',
+//     city: '',
+//     venue: '',
+//     hostedBy: ''
+// };
+const mapStateToProps = (state, ownProps) => {
+    const eventId = ownProps.match.params.id;
+    let event = {
+        title: '',
+        date: '',
+        city: '',
+        venue: '',
+        hostedBy: ''
+    };
+    if (eventId && state.events.length > 0) {
+        event = state.events.filter(event => event.id === eventId)[0];
+    }
+    return { event };
+};
+const mapDispatchToActions = {
+    createEvent,
+    updateEvent
 };
 class EventForm extends Component {
+    // state = {
+    //     event: { ...emptyEvent }
+    // };
     state = {
-        event: { ...emptyEvent }
+        event: Object.assign({}, this.props.event)
     };
-    componentDidMount() {
-        if (this.props.selectedEvent != null) {
-            this.setState({ event: this.props.selectedEvent });
-        }
-    }
+    // componentDidMount() {
+    //     if (this.props.selectedEvent != null) {
+    //         this.setState({ event: this.props.selectedEvent });
+    //     }
+    // }
     //WARNING! To be deprecated in React v17. Use new lifecycle static getDerivedStateFromProps instead.
-    static getDerivedStateFromProps(nextProps, prevState) {
-        console.log('next', nextProps);
-        console.log('prev', prevState);
-        if (
-            nextProps.selectedEvent !== prevState.event &&
-            prevState.event.id &&
-            nextProps.selectedEvent.id !== prevState.event.id
-        ) {
-            console.log('in');
-            console.log('emptyEvent', emptyEvent);
-            return {
-                event: { ...nextProps.selectedEvent } || { ...emptyEvent }
-            };
-        } else {
-            return null;
-        }
-    }
+    // static getDerivedStateFromProps(nextProps, prevState) {
+    //     console.log('next', nextProps);
+    //     console.log('prev', prevState);
+    //     if (
+    //         nextProps.selectedEvent !== prevState.event &&
+    //         prevState.event.id &&
+    //         nextProps.selectedEvent.id !== prevState.event.id
+    //     ) {
+    //         console.log('in');
+    //         console.log('emptyEvent', emptyEvent);
+    //         return {
+    //             event: { ...nextProps.selectedEvent } || { ...emptyEvent }
+    //         };
+    //     } else {
+    //         return null;
+    //     }
+    // }
     onFormSubmit = evt => {
         evt.preventDefault();
         if (this.state.event.id) {
             this.props.updateEvent(this.state.event);
+            this.props.history.goBack();
         } else {
-            this.props.createEvent(this.state.event);
+            const newEvent = {
+                ...this.state.event,
+                id: cuid(),
+                hostPhotoURL: '/assets/user.png'
+            };
+            this.props.createEvent(newEvent);
+            this.props.history.push('/events');
         }
     };
     onInputChange = evt => {
@@ -103,13 +134,19 @@ class EventForm extends Component {
                     <Button positive type="submit">
                         Submit
                     </Button>
-                    <Button type="button" onClick={handleCancel}>
+                    <Button type="button" onClick={this.props.history.goBack}>
                         Cancel
                     </Button>
+                    {/* <Button type="button" onClick={handleCancel}>
+                        Cancel
+                    </Button> */}
                 </Form>
             </Segment>
         );
     }
 }
 
-export default EventForm;
+export default connect(
+    mapStateToProps,
+    mapDispatchToActions
+)(EventForm);

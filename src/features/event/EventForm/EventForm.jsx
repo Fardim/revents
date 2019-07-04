@@ -13,6 +13,8 @@ import {
     isRequired,
     hasLengthGreaterThan
 } from 'revalidate';
+import DateInput from '../../../app/common/form/DateInput';
+import { format } from 'date-fns/esm';
 
 // const emptyEvent = {
 //     title: '',
@@ -39,14 +41,17 @@ const validate = combineValidators({
         })
     )(),
     city: isRequired('city'),
-    venue: isRequired('venue')
+    venue: isRequired('venue'),
+    date: isRequired('date')
 });
 const mapStateToProps = (state, ownProps) => {
     const eventId = ownProps.match.params.id;
     let event = {};
     if (eventId && state.events.length > 0) {
         event = state.events.filter(event => event.id === eventId)[0];
+        // event.date = new Date(event.date);
     }
+    console.log(event);
     return { initialValues: event };
 };
 const mapDispatchToActions = {
@@ -84,8 +89,10 @@ class EventForm extends Component {
     //     }
     // }
     onFormSubmit = values => {
-        console.log(values);
         // evt.preventDefault();
+        // values.date = format(values.date, 'yyyy-MM-dd HH:mm');
+        // values.date = values.date.toString();
+        console.log(values);
         if (this.props.initialValues.id) {
             this.props.updateEvent(values);
             this.props.history.goBack();
@@ -96,6 +103,7 @@ class EventForm extends Component {
                 hostPhotoURL: '/assets/user.png',
                 hostedBy: 'Bob'
             };
+            console.log(newEvent);
             this.props.createEvent(newEvent);
             this.props.history.push('/events');
         }
@@ -159,8 +167,11 @@ class EventForm extends Component {
                             <Field
                                 name="date"
                                 type="text"
-                                component={TextInput}
-                                placeholder="Event Date"
+                                component={DateInput}
+                                placeholder="Date and Time of Event"
+                                dateFormat="yyyy-MM-dd HH:mm"
+                                showTimeSelect
+                                timeFormat="HH:mm"
                             />
                             {/* <Form.Field>
                                 <label>Event Title</label>

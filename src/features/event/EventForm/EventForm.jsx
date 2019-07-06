@@ -1,3 +1,4 @@
+/* global google*/
 import React, { Component } from 'react';
 import { Segment, Form, Button, Grid, Header } from 'semantic-ui-react';
 import { connect } from 'react-redux';
@@ -15,6 +16,9 @@ import {
 } from 'revalidate';
 import DateInput from '../../../app/common/form/DateInput';
 import { format } from 'date-fns/esm';
+import PlaceInput from '../../../app/common/form/PlaceInput';
+import { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
+import Script from 'react-load-script';
 
 // const emptyEvent = {
 //     title: '',
@@ -23,6 +27,7 @@ import { format } from 'date-fns/esm';
 //     venue: '',
 //     hostedBy: ''
 // };
+const api = 'AIzaSyAA924-ze-QJ8Er2ACLnCY6M2NmIRoMpnc';
 const category = [
     { key: 'drinks', text: 'Drinks', value: 'drinks' },
     { key: 'culture', text: 'Culture', value: 'culture' },
@@ -51,7 +56,7 @@ const mapStateToProps = (state, ownProps) => {
         event = state.events.filter(event => event.id === eventId)[0];
         // event.date = new Date(event.date);
     }
-    console.log(event);
+    // console.log(event);
     return { initialValues: event };
 };
 const mapDispatchToActions = {
@@ -59,6 +64,11 @@ const mapDispatchToActions = {
     updateEvent
 };
 class EventForm extends Component {
+    state = {
+        cityLatLng: {},
+        venueLatLng: {},
+        scriptLoaded: false
+    };
     // state = {
     //     event: { ...emptyEvent }
     // };
@@ -88,10 +98,43 @@ class EventForm extends Component {
     //         return null;
     //     }
     // }
+    handleScriptLoaded = () => {
+        this.setState({ scriptLoaded: true });
+    };
+    handleCitySelect = selectedCity => {
+        geocodeByAddress(selectedCity)
+            .then(results => {
+                console.log('results', results);
+                return getLatLng(results[0]);
+            })
+            .then(latlng => {
+                console.log('latlng', latlng);
+                this.setState({ cityLatLng: latlng });
+            })
+            .then(() => {
+                this.props.change('city', selectedCity);
+            });
+    };
+    handleVenueSelect = selectedVenue => {
+        geocodeByAddress(selectedVenue)
+            .then(results => {
+                console.log('results', results);
+                return getLatLng(results[0]);
+            })
+            .then(latlng => {
+                console.log('latlng', latlng);
+                this.setState({ venueLatLng: latlng });
+            })
+            .then(() => {
+                this.props.change('venue', selectedVenue);
+            });
+    };
+
     onFormSubmit = values => {
         // evt.preventDefault();
         // values.date = format(values.date, 'yyyy-MM-dd HH:mm');
         // values.date = values.date.toString();
+        values.venueLatLng = this.state.venueLatLng;
         console.log(values);
         if (this.props.initialValues.id) {
             this.props.updateEvent(values);
@@ -108,6 +151,7 @@ class EventForm extends Component {
             this.props.history.push('/events');
         }
     };
+
     // onInputChange = evt => {
     //     const newEvent = this.state.event;
     //     newEvent[evt.target.name] = evt.target.value;
@@ -119,6 +163,10 @@ class EventForm extends Component {
         const { invalid, submitting, pristine } = this.props;
         return (
             <Grid>
+                <Script
+                    url="https://maps.googleapis.com/maps/api/js?key=AIzaSyAA924-ze-QJ8Er2ACLnCY6M2NmIRoMpnc&libraries=places"
+                    onLoad={this.handleScriptLoaded}
+                />
                 <Grid.Column width={10}>
                     <Segment>
                         <Header sub color="teal" content="Event Details" />
@@ -152,18 +200,32 @@ class EventForm extends Component {
                                 color="teal"
                                 content="Event Location Details"
                             />
+
                             <Field
                                 name="city"
                                 type="text"
-                                component={TextInput}
+                                component={PlaceInput}
+                                options={{ types: ['(cities)'] }}
                                 placeholder="Event City"
+                                onSelect={this.handleCitySelect}
                             />
-                            <Field
-                                name="venue"
-                                type="text"
-                                component={TextInput}
-                                placeholder="Event Venue"
-                            />
+
+                            {this.state.scriptLoaded && (
+                                <Field
+                                    name="venue"
+                                    type="text"
+                                    component={PlaceInput}
+                                    options={{
+                                        location: new google.maps.LatLng(
+                                            this.state.cityLatLng
+                                        ),
+                                        radius: 1000,
+                                        types: ['establishment']
+                                    }}
+                                    placeholder="Event Venue"
+                                    onSelect={this.handleVenueSelect}
+                                />
+                            )}
                             <Field
                                 name="date"
                                 type="text"

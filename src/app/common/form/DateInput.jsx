@@ -5,7 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format, parseISO } from 'date-fns/esm';
 
 const DateInput = ({
-    input,
+    input: { value, onChange, ...restInput },
     width,
     placeholder,
     meta: { touched, error },
@@ -16,10 +16,11 @@ const DateInput = ({
             <DatePicker
                 {...rest}
                 placeholder={placeholder}
-                selected={input.value ? parseISO(input.value) : null}
+                selected={value ? parseISO(value) : null}
                 onChange={date =>
-                    input.onChange(format(date, 'yyyy-MM-dd HH:mm'))
+                    date ? onChange(format(date, 'yyyy-MM-dd HH:mm')) : null
                 }
+                {...restInput}
             />
             {touched && error && (
                 <Label basic color="red">
